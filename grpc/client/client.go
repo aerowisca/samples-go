@@ -21,7 +21,7 @@ type application struct {
 func (app *application) grpcHandler(c echo.Context) error {
 	fmt.Println("grpc handler called")
 	//	Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Hour)
 	defer cancel()
 	r, err := app.g.SayHello(ctx, &pb.HelloRequest{Name: "gRPC-call"})
 	if err != nil {
