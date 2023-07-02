@@ -58,7 +58,7 @@ func (f fakeConn) Read(b []byte) (n int, err error) {
 }
 
 func (f fakeConn) Write(b []byte) (n int, err error) {
-	fmt.Printf("Writing data to client \n%v\n\n", string(b))
+	fmt.Printf("Writing data to client \n%v\n\n", b)
 	n, err = f.actualConn.Write(b)
 	if err != nil {
 		fmt.Printf("Error encountered while writing data to client: %v\n", err)
