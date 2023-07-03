@@ -20,6 +20,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -27,8 +28,11 @@ import (
 	"net"
 	"time"
 
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+
+	expp "sample-grpc-app/experiment"
 )
 
 var (
@@ -51,6 +55,14 @@ type fakeConn struct {
 func (f fakeConn) Read(b []byte) (n int, err error) {
 	n, err = f.actualConn.Read(b)
 	fmt.Printf("Read initiated from the client with data \n%v\n\n", string(b))
+	buf := bytes.NewBuffer(b)
+	framer := http2.NewFramer(buf, buf)
+	for {
+		n := expp.HeaderFields(framer)
+		if n != 1 {
+			break
+		}
+	}
 	if err != nil {
 		fmt.Printf("Error encountered while reading data from client: %v\n", err)
 	}
@@ -59,6 +71,14 @@ func (f fakeConn) Read(b []byte) (n int, err error) {
 
 func (f fakeConn) Write(b []byte) (n int, err error) {
 	fmt.Printf("Writing data to client \n%v\n\n", b)
+	buf := bytes.NewBuffer(b)
+	framer := http2.NewFramer(buf, buf)
+	for {
+		n := expp.HeaderFields(framer)
+		if n != 1 {
+			break
+		}
+	}
 	n, err = f.actualConn.Write(b)
 	if err != nil {
 		fmt.Printf("Error encountered while writing data to client: %v\n", err)
