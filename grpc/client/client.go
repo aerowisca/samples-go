@@ -19,6 +19,7 @@ type application struct {
 }
 
 func grpcHandler(c echo.Context) error {
+	// The grpc connection is in the handler.
 	fmt.Println("grpc handler called")
 	//	Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Hour)
