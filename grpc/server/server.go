@@ -55,17 +55,6 @@ type fakeConn struct {
 func (f fakeConn) Read(b []byte) (n int, err error) {
 	n, err = f.actualConn.Read(b)
 	fmt.Printf("Read initiated from the client with data \n%v\n\n", string(b))
-	buf := bytes.NewBuffer(b)
-	framer := http2.NewFramer(buf, buf)
-	for {
-		n := expp.HeaderFields(framer)
-		if n != 1 {
-			break
-		}
-	}
-	if err != nil {
-		fmt.Printf("Error encountered while reading data from client: %v\n", err)
-	}
 	return n, err
 }
 
