@@ -18,20 +18,12 @@ type application struct {
 	g pb.GreeterClient
 }
 
-func grpcHandler(c echo.Context) error {
+func (app *application) grpcHandler(c echo.Context) error {
 	// The grpc connection is in the handler.
 	fmt.Println("grpc handler called")
 	//	Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Hour)
 	defer cancel()
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-
-	g := pb.NewGreeterClient(conn)
-	app := &application{g: g}
 	r, err := app.g.SayHello(ctx, &pb.HelloRequest{Name: "gRPC-call"})
 	if err != nil {
 		log.Printf("could not greet: %v", err)
@@ -43,15 +35,14 @@ func grpcHandler(c echo.Context) error {
 }
 
 func main() {
-	//if the connection is established in main ,remove the following comments
-	//conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatalf("did not connect: %v", err)
-	//}
-	//defer conn.Close()
-	//
-	//g := pb.NewGreeterClient(conn)
-	//app := &application{g: g}
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	g := pb.NewGreeterClient(conn)
+	app := &application{g: g}
 
 	// Echo instance
 	e := echo.New()
@@ -60,7 +51,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/pingGRPC", grpcHandler)
+	e.GET("/pingGRPC", app.grpcHandler)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
