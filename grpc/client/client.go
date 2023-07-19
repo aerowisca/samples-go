@@ -198,22 +198,22 @@ func main() {
 	e.Logger.Fatal(e.Start(":8080"))
 }
 func (app *NewrouteClient) grpcHandler(c echo.Context) error {
-	// Looking for a valid feature
-	printFeature(app.client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
+	// Looking for a valid feature (UNARY rpc)
+	//printFeature(app.client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
 
-	// Feature missing.
-	printFeature(app.client, &pb.Point{Latitude: 0, Longitude: 0})
+	// Feature missing. (UNARY rpc)
+	//printFeature(app.client, &pb.Point{Latitude: 0, Longitude: 0})
 
-	// Looking for features between 40, -75 and 42, -73.
+	// Looking for features between 40, -75 and 42, -73. (SERVER SIDE streaming rpc)
 	printFeatures(app.client, &pb.Rectangle{
 		Lo: &pb.Point{Latitude: 400000000, Longitude: -750000000},
 		Hi: &pb.Point{Latitude: 420000000, Longitude: -730000000},
 	})
 
-	// RecordRoute
+	// RecordRoute (CLIENT-SIDE streaming rpc)
 	//runRecordRoute(app.client)
 
-	// RouteChat
+	// RouteChat (BIDIRECTIONAL streaming rpc)
 	//runRouteChat(app.client)
 	return nil
 }
