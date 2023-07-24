@@ -88,12 +88,16 @@ func printFeatures(client pb.RouteGuideClient, rect *pb.Rectangle) {
 // runRecordRoute sends a sequence of points to server and expects to get a RouteSummary from server.
 func runRecordRoute(client pb.RouteGuideClient) {
 	// Create a random number of random points
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pointCount := int(r.Int31n(100)) + 2 // Traverse at least two points
+	//r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	//pointCount := int(r.Int31n(100)) + 2 // Traverse at least two points
+	//pointCount := 3
 	var points []*pb.Point
-	for i := 0; i < pointCount; i++ {
-		points = append(points, randomPoint(r))
-	}
+	//for i := 0; i < pointCount; i++ {
+	//	points = append(points, &pb.Point{Latitude: 409146138, Longitude: -746188906})
+	//}
+	points = append(points, &pb.Point{Latitude: 409146138, Longitude: -746188906})
+	points = append(points, &pb.Point{Latitude: 400000000, Longitude: -750000000})
+	points = append(points, &pb.Point{Latitude: 420000000, Longitude: -730000000})
 	log.Printf("Traversing %d points.", len(points))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -196,13 +200,14 @@ func main() {
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
+
 }
 func (app *NewrouteClient) grpcHandler(c echo.Context) error {
 	// Looking for a valid feature (UNARY rpc)
-	//printFeature(app.client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
+	printFeature(app.client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
 
 	// Feature missing. (UNARY rpc)
-	//printFeature(app.client, &pb.Point{Latitude: 0, Longitude: 0})
+	printFeature(app.client, &pb.Point{Latitude: 0, Longitude: 0})
 
 	// Looking for features between 40, -75 and 42, -73. (SERVER SIDE streaming rpc)
 	printFeatures(app.client, &pb.Rectangle{
@@ -211,9 +216,9 @@ func (app *NewrouteClient) grpcHandler(c echo.Context) error {
 	})
 
 	// RecordRoute (CLIENT-SIDE streaming rpc)
-	//runRecordRoute(app.client)
+	runRecordRoute(app.client)
 
 	// RouteChat (BIDIRECTIONAL streaming rpc)
-	//runRouteChat(app.client)
+	runRouteChat(app.client)
 	return nil
 }
